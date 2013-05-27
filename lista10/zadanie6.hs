@@ -33,3 +33,6 @@ mtx12 (Mtx2x2 a11 a12 a21 a22) = a12
 fib :: Integer -> Integer
 fib n = mtx12 (x ^^^ n)
   where x = Mtx2x2 0 1 1 1 :: (Mtx2x2 Integer)
+
+
+
