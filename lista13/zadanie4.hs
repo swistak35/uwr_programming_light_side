@@ -6,6 +6,19 @@ instance Monad (StateComput s) where
                 let (value, newState) = f state
                     (SC aux) = g value
                 in aux newState)
+-- Przyda się tutaj drobny komentarz, konkretnie dlaczego piszemy "StateComput s",
+-- a nie "StateComput" albo "StateComput s a".
+-- W tym miejscu, zamieszane są rodzaje. (sprawdzane przez :k w repl'u)
+-- Kiedy wejdziemy w definicję monady, to mamy tam typy funkcji, np. bind:
+---- m a -> (a -> m b) -> m b
+-- StateComput jest rodzaju "* -> * -> *", a tutaj wymagane jest od nas, aby m było rodzaju "* -> *"
+-- Po zaaplikowaniu do konstruktora typów jednego z parametrów, dostajemy to co chcieliśmy.
+-- Czyli ogólnie jest tutaj podobnie jak z typami i funkcjami (curried).
+-- Pasuje nam to, gdyż typ stanu w naszej monadzie się nie zmienia - jak już używamy monady stanowej,
+-- to typ jest cały czas taki sam, za to zmienia się typ wartości przekazywanej
+-- w powyższym bindzie mamy np. "m a" i "m b", gdzie "a" i "b" to są właśnie typy wartości,
+-- a "m" to jest nasze "StateComput s".
+
 
 ------
 ------ Poniżej są zadania 2 i 3, z drobnymi modyfikacjami, żeby korzystać z StateComput
