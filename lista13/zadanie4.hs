@@ -15,8 +15,8 @@ instance Monad (StateComput s) where
 -- Po zaaplikowaniu do konstruktora typów jednego z parametrów, dostajemy to co chcieliśmy.
 -- Czyli ogólnie jest tutaj podobnie jak z typami i funkcjami (curried).
 -- Pasuje nam to, gdyż typ stanu w naszej monadzie się nie zmienia - jak już używamy monady stanowej,
--- to typ jest cały czas taki sam, za to zmienia się typ wartości przekazywanej
--- w powyższym bindzie mamy np. "m a" i "m b", gdzie "a" i "b" to są właśnie typy wartości,
+-- to typ jest cały czas taki sam, za to zmienia się typ wartości przekazywanej.
+-- W powyższym bindzie mamy np. "m a" i "m b", gdzie "a" i "b" to są właśnie typy wartości,
 -- a "m" to jest nasze "StateComput s".
 
 
