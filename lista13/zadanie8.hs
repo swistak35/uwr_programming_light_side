@@ -9,8 +9,8 @@ instance (Monad m) => Monad (Parser token m) where
                 let (Parser aux) = g value in aux rest))
 
 instance (MonadPlus m) => MonadPlus (Parser token m) where
-        mplus (Parser p) (Parser q) = Parser (\token -> (p token) `mplus` (q token))
-        mzero = Parser (\token -> mzero)
+        mplus (Parser p) (Parser q) = Parser (\tokens -> (p tokens) `mplus` (q tokens))
+        mzero = Parser (\tokens -> mzero)
 
 parse :: Monad m => Parser token m value -> [token] -> m value
 parse (Parser f) tokens = (f tokens) >>= (\(_, value) -> return value)
