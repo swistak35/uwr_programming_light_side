@@ -22,13 +22,19 @@ isEmpty :: (MonadPlus m) => Parser token m ()
 isEmpty = Parser (\tokens -> if null tokens then return (tokens, ()) else mzero)
 
 many :: (MonadPlus m) => Parser token m value -> Parser token m [value]
-many parser@(Parser f) = (return []) `mplus` (many1 parser)
+many parser@(Parser f) = Parser (\ts -> return (ts,[])) `mplus` (many1 parser)
 
 many1 :: (MonadPlus m) => Parser token m value -> Parser token m [value]
-many1 parser@(Parser f) = Parser (\tokens -> let (Parser q) = (many parser) in (f tokens) >>= (\(ts, val) -> (q ts) >>= (\(ys, vals) -> return (ys, val:vals))))
+--many1 parser@(Parser f) = Parser (\tokens -> let (Parser q) = (many parser) in (f tokens) >>= (\(ts, val) -> (q ts) >>= (\(ys, vals) -> return (ys, val:vals))))
+many1 parser@(Parser f) = Parser (\tokens -> do
+        let Parser q = many parser
+        (ts,val) <- f tokens
+        (ys,vals) <- q ts
+        return (ys,val:vals))
 
-option :: MonadPlus m => Parser token m value -> Parser token m value 
-option p = (return undefined) `mplus` p
+option :: MonadPlus m => Parser token m value -> value -> Parser token m value 
+option p val = Parser (\ts -> return (ts,val)) `mplus` p
+--option p = (return undefined) `mplus` p -- bardziej uniwersalne, hehehe.
 
 isToken :: (Eq t, MonadPlus m) => t -> Parser t m t
 isToken t = Parser (\ts -> case ts of
@@ -59,3 +65,36 @@ parse2 = do {
 
 runParser :: Parser token m value -> [token] -> m ([token], value)
 runParser (Parser f) tokens = f tokens
+
+
+----- Fajny przykład
+
+data Token = Number Integer | LParen | RParen | OpPlus | OpTimes deriving (Eq)
+
+atom :: Parser Token [] Integer
+atom = parseNum `mplus` (do
+        isToken LParen
+        m <- skladnik
+        isToken RParen
+        return m)
+
+czynnik :: Parser Token [] Integer
+czynnik = do
+        n <- atom
+        ns <- many (do
+                isToken OpTimes
+                atom)
+        return $ foldl (*) n ns
+
+skladnik :: Parser Token [] Integer
+skladnik = do
+        n <- czynnik
+        ns <- many (do
+                isToken OpPlus
+                czynnik)
+        return $ foldl (+) n ns
+
+parseNum :: Parser Token [] Integer
+parseNum = Parser (\ts -> (case ts of
+        (Number n):ts' -> return (ts',n)
+        _ -> mzero))
